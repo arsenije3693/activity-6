@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signIn, signOut } from "next-auth/react";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -22,14 +23,21 @@ export default function NavBar() {
         <Link href="/new" className={linkClass("/new")}>
           New
         </Link>
-        <Link href="/api/auth/signin" className="nav-item nav-link">
-  Sign In
-</Link>
 
-<Link href="/api/auth/signout" className="nav-item nav-link">
-  Sign Out
-</Link>
+        {/* FIXED BUTTONS */}
+        <button
+          onClick={() => signIn("github")}
+          className="nav-item nav-link"
+        >
+          Sign In
+        </button>
 
+        <button
+          onClick={() => signOut()}
+          className="nav-item nav-link"
+        >
+          Sign Out
+        </button>
       </nav>
     </header>
   );
