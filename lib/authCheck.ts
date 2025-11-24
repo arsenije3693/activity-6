@@ -1,13 +1,13 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../app/api/auth/[...nextauth]/route";
-
-
-
 
 export async function requireAdmin() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
-  if (!session || session.user?.role !== "admin") {
+  // If you want to restrict admin access:
+  // You can check email instead of role  
+  const allowedAdmins = [process.env.ADMIN_EMAILS];
+
+  if (!session || !allowedAdmins.includes(session.user?.email || "")) {
     return {
       ok: false,
       response: new Response("Unauthorized", { status: 401 }),
