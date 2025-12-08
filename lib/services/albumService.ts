@@ -1,4 +1,5 @@
-import { AlbumRepository } from "../repositories/albumsRepository";
+import { AlbumRepository } from "../repositories/albumRepository";
+
 import { requireAdmin } from "../authCheck";
 
 export const AlbumService = {
