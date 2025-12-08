@@ -1,18 +1,13 @@
-import { getServerSession } from "next-auth";
+// lib/authCheck.ts
 
-export async function requireAdmin() {
-  const session = await getServerSession();
-
-  // If you want to restrict admin access:
-  // You can check email instead of role  
-  const allowedAdmins = [process.env.ADMIN_EMAILS];
-
-  if (!session || !allowedAdmins.includes(session.user?.email || "")) {
-    return {
-      ok: false,
-      response: new Response("Unauthorized", { status: 401 }),
-    };
+export function requireUser(session: any) {
+  if (!session || !session.user) {
+    throw new Error("Unauthorized – User login required");
   }
+}
 
-  return { ok: true, session };
+export function requireAdmin(session: any) {
+  if (!session || session.user?.role !== "admin") {
+    throw new Error("Forbidden – Admin only");
+  }
 }

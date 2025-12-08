@@ -15,6 +15,7 @@ export default function NewAlbumPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+
     try {
       const res = await fetch("/api/albums", {
         method: "POST",
@@ -22,8 +23,8 @@ export default function NewAlbumPage() {
         body: JSON.stringify({
           title,
           artist,
-          year: Number(year) || new Date().getFullYear()
-        })
+          year: Number(year) || new Date().getFullYear(),
+        }),
       });
 
       if (!res.ok) {
@@ -31,63 +32,58 @@ export default function NewAlbumPage() {
         throw new Error(data.error || `HTTP ${res.status}`);
       }
 
-      await res.json();
       router.push("/");
     } catch (err: any) {
-      setError(err.message || "Failed to create album.");
+      setError(err.message);
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div>
-      <div className="card">
-        <h2>Create Album (Simple Form)</h2>
-        <p style={{ fontSize: "0.875rem", color: "#9ca3af" }}>
-          Fill in the fields below and submit. The album will be added to the
-          in-memory list on the server and appear in the JSON stream on the
-          home page.
-        </p>
-      </div>
+    <div style={{ padding: "2rem", color: "white" }}>
+      <h1>Create Album</h1>
 
-      <form onSubmit={handleSubmit} className="form">
-        <div>
-          <label htmlFor="title">Title</label>
-          <input
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Album title"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="artist">Artist</label>
-          <input
-            id="artist"
-            value={artist}
-            onChange={(e) => setArtist(e.target.value)}
-            placeholder="Artist name"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="year">Year (optional)</label>
-          <input
-            id="year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            placeholder="2025"
-          />
-        </div>
+      <form onSubmit={handleSubmit} style={{ marginTop: "1.5rem" }}>
+        <label>Title</label>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          style={{ display: "block", marginBottom: "1rem", padding: "0.5rem", width: "100%" }}
+        />
 
-        {error && <div className="error">{error}</div>}
+        <label>Artist</label>
+        <input
+          value={artist}
+          onChange={(e) => setArtist(e.target.value)}
+          required
+          style={{ display: "block", marginBottom: "1rem", padding: "0.5rem", width: "100%" }}
+        />
+
+        <label>Year</label>
+        <input
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          style={{ display: "block", marginBottom: "1rem", padding: "0.5rem", width: "100%" }}
+        />
+
+        {error && (
+          <p style={{ color: "red", marginBottom: "1rem" }}>
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
-          className="button button-primary"
           disabled={submitting}
+          style={{
+            padding: "0.75rem 1.5rem",
+            background: "#1e40af",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+          }}
         >
           {submitting ? "Submitting…" : "Submit"}
         </button>
