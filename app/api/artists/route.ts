@@ -1,8 +1,8 @@
 // app/api/artists/route.ts
 import { NextResponse } from "next/server";
 import { ArtistService } from "../../../lib/services/artistService";
-
 import { getServerSession } from "next-auth";
+import { authOptions } from "../../../lib/auth";
 
 export async function GET() {
   const data = ArtistService.getAll();
@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const body = await req.json();
   const created = ArtistService.create(session, body);
   return NextResponse.json(created);

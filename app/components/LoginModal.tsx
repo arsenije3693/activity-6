@@ -1,10 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 
 export default function LoginModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
+
+  const handleUserLogin = async () => {
+    if (!name.trim()) return;
+    
+    const result = await signIn("credentials", {
+      name: name.trim(),
+      redirect: false,
+    });
+    
+    if (result?.ok) {
+      onClose();
+    }
+  };
+
+  const handleGuestMode = async () => {
+    await signOut({ redirect: false });
+    onClose();
+  };
 
   return (
     <div style={{
@@ -40,21 +58,19 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter name..."
+            onKeyDown={(e) => e.key === "Enter" && handleUserLogin()}
             style={{
               width: "100%",
               padding: "6px",
               marginTop: "4px",
               borderRadius: 6,
+              color: "black",
             }}
           />
           <button
             style={{ marginTop: "0.75rem", width: "100%" }}
-            onClick={() => {
-              sessionStorage.setItem("manualUser", name);
-              sessionStorage.setItem("manualRole", "user");
-              onClose();
-              window.location.reload();
-            }}
+            onClick={handleUserLogin}
+            disabled={!name.trim()}
           >
             Continue as User
           </button>
@@ -63,12 +79,7 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
         {/* Guest */}
         <button
           style={{ marginTop: "1rem", width: "100%" }}
-          onClick={() => {
-            sessionStorage.removeItem("manualUser");
-            sessionStorage.removeItem("manualRole");
-            onClose();
-            window.location.reload();
-          }}
+          onClick={handleGuestMode}
         >
           Continue as Guest
         </button>

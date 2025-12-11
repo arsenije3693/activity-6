@@ -1,10 +1,20 @@
 // app/page.tsx
 
+"use client";
+
 import AlbumCard from "./components/AlbumCard";
 import { albums } from "@/lib/albums";
-import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function DebugAlbumPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleCreateAlbum = () => {
+    router.push("/albums/new");
+  };
+
   return (
     <main style={{ padding: "1.5rem" }}>
       {/* Header + Create button row */}
@@ -28,9 +38,22 @@ export default function DebugAlbumPage() {
           </p>
         </div>
 
-
-      
-      
+        {/* Admin-only Create New Album Button */}
+        {session?.user.role === "admin" && (
+          <button
+            onClick={handleCreateAlbum}
+            style={{
+              padding: "0.75rem 1.5rem",
+              background: "#1e40af",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            Create New Album
+          </button>
+        )}
       </div>
 
       {/* Cards section */}

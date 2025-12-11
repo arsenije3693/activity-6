@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LoginModal from "./LoginModal";
 
 export default function NavBar() {
@@ -11,19 +11,9 @@ export default function NavBar() {
   const { data: session } = useSession();
   const [showLogin, setShowLogin] = useState(false);
 
-  // read manual user override
-  const manualName = typeof window !== "undefined" ? sessionStorage.getItem("manualUser") : null;
-  const manualRole = typeof window !== "undefined" ? sessionStorage.getItem("manualRole") : null;
-
-  // final role
-  const role =
-    manualRole ||
-    (session?.user?.role ?? "guest");
-
-  const displayName =
-    manualName ||
-    session?.user?.name ||
-    "Guest";
+  const role = session?.user?.role ?? "guest";
+  const displayName = session?.user?.name ?? "Guest";
+  const isLoggedIn = !!session;
 
   const linkClass = (href: string) =>
     "nav-link" + (pathname === href ? " bg-slate-800" : "");
@@ -37,26 +27,28 @@ export default function NavBar() {
         <div style={{ fontWeight: 700 }}>Sparks Album List – Debug Nav</div>
       </div>
 
-      <nav className="nav-links">
+      <nav className="nav-links"> 
+     
         <Link href="/" className={linkClass("/")}>Main</Link>
-        <Link href="/new" className={linkClass("/new")}>New</Link>
+       
 
-        <button
-          onClick={() => setShowLogin(true)}
-          className="nav-item nav-link"
-        >
-          Sign In
-        </button>
+        {!isLoggedIn && (
+          <button
+            onClick={() => setShowLogin(true)}
+            className="nav-item nav-link"
+          >
+            Sign In
+          </button>
+        )}
 
-        <button
-          onClick={() => {
-            sessionStorage.clear();
-            signOut();
-          }}
-          className="nav-item nav-link"
-        >
-          Sign Out
-        </button>
+        {isLoggedIn && (
+          <button
+            onClick={() => signOut({ redirect: false })}
+            className="nav-item nav-link"
+          >
+            Sign Out
+          </button>
+        )}
 
         <span style={{ marginLeft: "1rem", color: "white" }}>
           {displayName} — <strong>{role}</strong>

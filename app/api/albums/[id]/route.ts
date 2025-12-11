@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { AlbumService } from "../../../../lib/services/albumService";
 import { getServerSession } from "next-auth";
+import { authOptions } from "../../../../lib/auth";
 
 export async function GET(_: any, { params }: any) {
   const album = AlbumService.getById(Number(params.id));
@@ -12,7 +13,7 @@ export async function GET(_: any, { params }: any) {
 }
 
 export async function PUT(req: Request, { params }: any) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   const body = await req.json();
 
@@ -25,12 +26,19 @@ export async function PUT(req: Request, { params }: any) {
 }
 
 export async function DELETE(_: any, { params }: any) {
-  const session = await getServerSession();
-
-  try {
-    AlbumService.delete(session, Number(params.id));
-    return NextResponse.json({ message: "Deleted" });
-  } catch (err: any) {
-    return NextResponse.json({ message: err.message }, { status: 403 });
+  const session = await getServerSession(authOptions);
+  
+  if (session?.user?.role !== "admin") {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
+
+  const { albums } = await import("../../../../lib/albums");
+  const index = albums.findIndex(a => a.id === Number(params.id));
+  
+  if (index === -1) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+  
+  albums.splice(index, 1);
+  return NextResponse.json({ message: "Deleted" });
 }

@@ -1,8 +1,8 @@
 // app/api/tracks/[id]/route.ts
 import { NextResponse } from "next/server";
 import { TrackService } from "../../../../lib/services/trackService";
-
 import { getServerSession } from "next-auth";
+import { authOptions } from "../../../../lib/auth";
 
 export async function GET(_: any, { params }: any) {
   const track = TrackService.getById(Number(params.id));
@@ -11,7 +11,7 @@ export async function GET(_: any, { params }: any) {
 }
 
 export async function DELETE(_: any, { params }: any) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   TrackService.delete(session, Number(params.id));
   return NextResponse.json({ message: "Deleted" });
 }

@@ -1,18 +1,26 @@
 // app/api/reviews/route.ts
 import { NextResponse } from "next/server";
-import { ReviewService } from "../../../lib/services/reviewService";
-
-
+import { loadReviews, saveReviews } from "../../../lib/reviews";
 import { getServerSession } from "next-auth";
+import { authOptions } from "../../../lib/auth";
 
 export async function GET() {
-  const data = ReviewService.getAll();
-  return NextResponse.json(data);
+  const reviews = loadReviews();
+  return NextResponse.json(reviews);
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const body = await req.json();
-  const created = ReviewService.create(session, body);
-  return NextResponse.json(created);
+  
+  const reviews = loadReviews();
+  const newReview = {
+    id: reviews.length > 0 ? Math.max(...reviews.map(r => r.id)) + 1 : 1,
+    ...body
+  };
+  
+  reviews.push(newReview);
+  await saveReviews(reviews);
+  
+  return NextResponse.json(newReview, { status: 201 });
 }
